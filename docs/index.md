@@ -287,6 +287,16 @@ See [install.md](install.md) for build instructions.
 
 ## Contributing Guidelines
 
+### Code Standards
+
+This project follows strict code standards documented in the `.cursorrules` file at the project root. Key standards include:
+
+- **Python:** PEP 8 compliant, YAPF formatted, Pylint validated
+- **Patches:** Unified diff format, descriptive names, focused changes
+- **C++ (in patches):** Chromium style guide (2-space indent, 80-char lines)
+- **Documentation:** Markdown with clear structure and examples
+- **Commits:** Descriptive messages, atomic changes
+
 ### Before Creating a Pull Request
 
 1. **Validate your changes**:
@@ -325,7 +335,8 @@ See [install.md](install.md) for build instructions.
 
 ## Additional Resources
 
-- [Installation Guide](install.md) - How to build and test Helium locally
+- **[Installation Guide](install.md)** - How to build and test Helium locally
+- **[Patch Writing Tutorial](patch.md)** - Step-by-step guide to creating patches
 - [ungoogled-chromium documentation](https://github.com/ungoogled-software/ungoogled-chromium)
 - [Chromium development documentation](https://www.chromium.org/developers/)
 

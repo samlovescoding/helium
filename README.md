@@ -86,6 +86,8 @@ Comprehensive developer documentation is now available:
 
 - **[Developer Guide](docs/index.md)** - Project structure, folder organization, and how to develop features for Helium
 - **[Installation Guide](docs/install.md)** - How to build Helium from source and test features locally
+- **[Patch Writing Tutorial](docs/patch.md)** - Step-by-step guide for writing your first patch
+- **[Code Standards](.cursorrules)** / **[CLAUDE.md](CLAUDE.md)** - Comprehensive coding standards and best practices for all file types
 
 > [!NOTE]
 > We will continue to add more documentation along with design and motivation guidelines in the future.

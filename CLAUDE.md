@@ -1,0 +1,519 @@
+# Helium Browser - Claude Code AI Rules
+
+## Project Overview
+
+Helium is a privacy-focused Chromium-based browser built on ungoogled-chromium. This project uses a patch-based approach to modify Chromium behavior, maintaining configuration files, Python utilities, and resources for building the browser.
+
+**Key Technologies:**
+
+- Python 3.8+ (utility scripts)
+- C++ (Chromium patches)
+- Patch files (unified diff format)
+- GN build system
+- Git for version control
+
+## File Organization Standards
+
+### Directory Structure
+
+```
+helium/
+├── patches/                    # Patch files (unified diff format)
+│   ├── core/                  # Core patches from ungoogled-chromium and others
+│   ├── extra/                 # Additional optional patches
+│   ├── helium/                # Helium-specific patches
+│   │   ├── core/              # Core functionality
+│   │   ├── ui/                # User interface modifications
+│   │   ├── settings/          # Settings page changes
+│   │   └── hop/               # Helium Onboarding Protocol
+│   ├── upstream-fixes/        # Build fixes
+│   └── series                 # Ordered list of patches to apply
+├── utils/                     # Build and development utilities (Python)
+├── devutils/                  # Development tools and validation scripts
+├── resources/                 # Branding and visual assets
+└── docs/                      # Documentation (Markdown)
+```
+
+### File Naming Conventions
+
+- **Patch files**: lowercase with hyphens, descriptive: `disable-feature-name.patch`
+- **Python files**: lowercase with underscores: `domain_substitution.py`
+- **Documentation**: lowercase with hyphens: `install.md`, `patch.md`
+- **Config files**: lowercase with dots/underscores: `downloads.ini`, `domain_regex.list`
+
+## Python Code Standards
+
+### Style Guide
+
+**Code Formatter:** YAPF (Yet Another Python Formatter)
+
+- Run before committing: `bash devutils/run_utils_yapf.sh`
+- Style: PEP 8 compliant with project-specific overrides
+
+**Linter:** Pylint
+
+- Run before committing: `python3 devutils/run_utils_pylint.py`
+- Disable specific warnings inline when necessary: `#pylint: disable=rule-name`
+
+### Python File Structure
+
+```python
+#!/usr/bin/env python3
+# -*- coding: UTF-8 -*-
+
+# Copyright 2025 The Helium Authors
+# You can use, redistribute, and/or modify this source code under
+# the terms of the GPL-3.0 license that can be found in the LICENSE file.
+
+# Copyright (c) 2019 The ungoogled-chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE.ungoogled_chromium file.
+"""
+Module docstring explaining the purpose and functionality.
+"""
+
+import standard_library_imports
+from third_party_imports import something
+
+from _common import project_imports
+
+# Constants in UPPER_CASE
+CONSTANT_NAME = "value"
+
+# Classes in PascalCase
+class ClassName:
+    """Class docstring."""
+
+    def method_name(self):
+        """Method docstring."""
+        pass
+
+# Functions in snake_case
+def function_name(param):
+    """Function docstring with parameter descriptions."""
+    pass
+```
+
+### Python Conventions
+
+- **Indentation:** 4 spaces (no tabs)
+- **Line length:** 100 characters (soft limit)
+- **String quotes:** Single quotes preferred, but be consistent
+- **Imports:** Group in order: standard library, third-party, project imports
+- **Docstrings:** Use triple-quoted strings for all modules, classes, and functions
+- **Type hints:** Optional but encouraged for new code
+- **Comments:** Use `#` for single-line comments explaining complex logic
+
+### Testing
+
+- **Framework:** pytest
+- **Location:** `tests/` subdirectory in each module
+- **Naming:** `test_*.py` for test files
+- **Coverage:** Aim for high coverage of utility functions
+- **Run tests:** `bash devutils/run_utils_tests.sh`
+
+## Patch File Standards
+
+### Patch Format
+
+Patches MUST be in unified diff format:
+
+```diff
+--- a/path/to/file.cc
++++ b/path/to/file.cc
+@@ -10,7 +10,10 @@
+ context line
+ context line
+-removed line
++added line
++another added line
+ context line
+ context line
+```
+
+### Patch File Requirements
+
+1. **Use unified diff format** (git diff or git format-patch)
+2. **Include sufficient context** (3-5 lines before and after changes)
+3. **One logical change per patch** (keep patches focused)
+4. **Descriptive file names** (e.g., `disable-crash-restore-dialog.patch`)
+5. **Proper directory placement** (helium/core/, helium/ui/, etc.)
+6. **Update patches/series** (add patch path in correct order)
+
+### Creating Patches
+
+```bash
+# Make changes in Chromium source
+git add modified_file.cc
+git commit -m "Brief description"
+
+# Generate patch
+git format-patch -1 HEAD --stdout > patch-name.patch
+
+# Or simpler diff
+git diff HEAD~1 HEAD > patch-name.patch
+
+# Move to appropriate location
+mv patch-name.patch "$HELIUM_ROOT/patches/helium/ui/"
+
+# Add to series file
+echo "helium/ui/patch-name.patch" >> patches/series
+```
+
+### Patch Content Standards
+
+When modifying Chromium C++ code in patches:
+
+**Indentation:** 2 spaces (Chromium standard, not 4)
+**Line length:** 80 characters (Chromium standard)
+**Naming conventions:**
+
+- Classes: `PascalCase`
+- Functions/methods: `PascalCase`
+- Variables: `snake_case`
+- Constants: `kPascalCase` (with leading k)
+- Member variables: `snake_case_` (with trailing underscore)
+
+**Comments in patches:**
+
+```cpp
+// Helium: Brief explanation of why this change is made
+// Additional context if needed
+return;
+```
+
+Always prefix Helium-specific comments with `// Helium:` to distinguish from Chromium code.
+
+### Patch Organization
+
+Place patches in appropriate directories:
+
+- **`patches/helium/core/`** - Core functionality, behavior changes, feature additions
+- **`patches/helium/ui/`** - User interface modifications, visual changes
+- **`patches/helium/settings/`** - Settings page customizations
+- **`patches/helium/hop/`** - Helium Onboarding Protocol related
+- **`patches/upstream-fixes/`** - Build fixes and compatibility patches
+
+## Configuration File Standards
+
+### downloads.ini
+
+INI format for Chromium source downloads:
+
+```ini
+[section_name]
+url = https://example.com/file.tar.xz
+download_filename = file.tar.xz
+hash_url = chromium|file.tar.xz.hashes|https://example.com/file.tar.xz.hashes
+output_path = ./
+strip_leading_dirs = directory_name
+```
+
+### flags.gn
+
+GN build flags format (no quotes around keys):
+
+```gn
+build_flag=false
+string_flag=""
+number_flag=0
+```
+
+### domain_regex.list
+
+Domain substitution patterns (one per line):
+
+```
+pattern#replacement
+google\\.com#9oo91e.qjz9zk
+```
+
+- Use `#` as delimiter between pattern and replacement
+- Escape special regex characters with `\\`
+- Pattern uses Python regex syntax
+
+### domain_substitution.list
+
+List of files to process (one per line, relative to Chromium src):
+
+```
+chrome/browser/file.cc
+chrome/common/file.h
+```
+
+### pruning.list
+
+List of files to remove (one per line, relative to Chromium src):
+
+```
+base/test/data/binary_file.bin
+third_party/unnecessary/file.so
+```
+
+### patches/series
+
+Ordered list of patches to apply (one per line):
+
+```
+upstream-fixes/fix-build.patch
+core/ungoogled-chromium/privacy-patch.patch
+helium/core/feature-patch.patch
+helium/ui/visual-patch.patch
+```
+
+**Critical:** Patch order matters! Dependencies must come before dependents.
+
+## Documentation Standards
+
+### Markdown Style
+
+- **Headers:** Use ATX style (`#`, `##`, `###`)
+- **Line length:** 100-120 characters (soft limit)
+- **Code blocks:** Use fenced code blocks with language identifier
+- **Links:** Use reference-style links for better readability when many links
+- **Lists:** Use `-` for unordered lists, `1.` for ordered lists
+- **Emphasis:** `**bold**` for bold, `*italic*` for italic
+- **Tables:** Use GitHub-style tables with proper alignment
+
+### Documentation Structure
+
+```markdown
+# Title (H1)
+
+Brief introduction paragraph.
+
+## Table of Contents (H2)
+
+- [Section 1](#section-1)
+- [Section 2](#section-2)
+
+## Section 1
+
+Content here.
+
+### Subsection (H3)
+
+More specific content.
+
+#### Sub-subsection (H4)
+
+Very specific content.
+```
+
+### Code Examples in Documentation
+
+Always include:
+
+- Language identifier for syntax highlighting
+- Comments explaining non-obvious parts
+- Complete, runnable examples when possible
+- Expected output or results
+
+```markdown
+\`\`\`bash
+
+# Comment explaining what this does
+
+python3 utils/patches.py apply /path/to/chromium/src
+\`\`\`
+
+\`\`\`python
+
+# Python example with explanation
+
+def example_function():
+"""Docstring."""
+return "result"
+\`\`\`
+```
+
+## License and Copyright
+
+### License Headers for New Python Files
+
+```python
+#!/usr/bin/env python3
+# -*- coding: UTF-8 -*-
+
+# Copyright 2025 The Helium Authors
+# You can use, redistribute, and/or modify this source code under
+# the terms of the GPL-3.0 license that can be found in the LICENSE file.
+```
+
+### License Headers for New C++ Files in Patches
+
+```cpp
+// Copyright 2025 The Helium Authors
+// You can use, redistribute, and/or modify this source code under
+// the terms of the GPL-3.0 license that can be found in the LICENSE file.
+```
+
+### License for Modified Files
+
+When modifying existing files (common in patches), retain the original copyright and add:
+
+```python
+# Copyright 2025 The Helium Authors
+# You can use, redistribute, and/or modify this source code under
+# the terms of the GPL-3.0 license that can be found in the LICENSE file.
+
+# Copyright (c) 2019 The ungoogled-chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE.ungoogled_chromium file.
+```
+
+**Important:** Helium-specific code is GPL-3.0. Imported code retains its original license.
+
+## Git Commit Standards
+
+### Commit Message Format
+
+```
+Brief summary (50 chars or less)
+
+Detailed explanation of what and why (wrap at 72 chars).
+- Can use bullet points
+- For listing multiple changes
+- Keep each point concise
+
+Fixes #123 (if applicable)
+```
+
+### Commit Guidelines
+
+- **First line:** Imperative mood ("Add feature" not "Added feature")
+- **Body:** Explain the "what" and "why", not the "how"
+- **References:** Link to issues or discussions when relevant
+- **Atomic commits:** One logical change per commit
+- **No WIP commits:** Squash before submitting PRs
+
+## Validation and Testing
+
+### Pre-Commit Checklist
+
+Before committing code, run:
+
+```bash
+# Validate Python code style
+bash devutils/run_utils_yapf.sh
+
+# Run Python linters
+python3 devutils/run_utils_pylint.py
+
+# Validate all patches
+python3 devutils/validate_patches.py
+
+# Check all patch files exist
+python3 devutils/check_patch_files.py
+
+# Validate configuration files
+python3 devutils/validate_config.py
+
+# Run Python tests
+bash devutils/run_utils_tests.sh
+
+# Run all checks (recommended)
+bash devutils/check_all_code.sh
+```
+
+### Pre-PR Checklist
+
+- [ ] All validation scripts pass
+- [ ] New features have tests
+- [ ] Documentation updated if needed
+- [ ] Patches apply cleanly to Chromium source
+- [ ] Build succeeds with new changes
+- [ ] Feature tested manually
+- [ ] Commit messages are clear and descriptive
+- [ ] No debugging code or commented-out code left in
+
+## Important Development Practices
+
+### DO
+
+✅ Keep patches small and focused (one logical change)
+✅ Add clear comments in patches explaining why changes are made
+✅ Test patches on clean Chromium source before submitting
+✅ Use descriptive names for files and variables
+✅ Follow the existing code style in the file you're modifying
+✅ Run validation scripts before committing
+✅ Write documentation for complex features
+✅ Update patches/series when adding new patches
+✅ Use proper license headers
+✅ Add docstrings to Python functions and classes
+
+### DON'T
+
+❌ Commit without running validation scripts
+❌ Create patches that modify multiple unrelated features
+❌ Use absolute paths in code (use relative paths)
+❌ Hardcode platform-specific paths
+❌ Mix tabs and spaces (use appropriate indent for language)
+❌ Leave debugging print statements in code
+❌ Commit commented-out code
+❌ Skip documentation for non-trivial features
+❌ Create patches without testing they apply cleanly
+❌ Modify core ungoogled-chromium patches (create override patches instead)
+
+## Special Considerations
+
+### Working with Chromium Code
+
+When creating patches that modify Chromium C++:
+
+1. **Follow Chromium's style guide** (2-space indent, 80-char lines)
+2. **Use Chromium's naming conventions** (kConstant, variable*name*, etc.)
+3. **Include necessary headers** in patches
+4. **Check for platform-specific code** (#if BUILDFLAG directives)
+5. **Prefer early returns** over deep nesting
+6. **Add "Helium:" prefix to comments** to mark modifications
+
+### Domain Substitution
+
+When adding domain substitution patterns:
+
+- **Pattern:** Use Python regex syntax
+- **Replacement:** Use blockable/neutral domains
+- **Test carefully:** Incorrect patterns can break builds
+- **Document unusual patterns:** Add comments if complex
+
+### Version Management
+
+- **chromium_version.txt:** Target Chromium version (e.g., "142.0.7444.59")
+- **version.txt:** Helium major version number
+- **revision.txt:** Helium revision/build number
+
+Always ensure patches are compatible with the Chromium version specified.
+
+## Resources and Documentation
+
+### Internal Documentation
+
+- `docs/index.md` - Developer guide and project structure
+- `docs/install.md` - Build and installation instructions
+- `docs/patch.md` - Patch writing tutorial
+- `README.md` - Project overview
+
+### External References
+
+- [Chromium Coding Style](https://chromium.googlesource.com/chromium/src/+/main/styleguide/c++/c++.md)
+- [Python PEP 8](https://www.python.org/dev/peps/pep-0008/)
+- [ungoogled-chromium](https://github.com/ungoogled-software/ungoogled-chromium)
+- [GN Reference](https://gn.googlesource.com/gn/+/main/docs/reference.md)
+
+## AI Assistant Guidelines
+
+When working on this project:
+
+1. **Understand the patch-based workflow** - Changes are made through patches, not direct modification
+2. **Follow existing patterns** - Look at similar patches for examples
+3. **Test before suggesting** - Ensure patches apply cleanly
+4. **Provide context** - Explain why changes are needed, not just what changes
+5. **Use validation tools** - Always recommend running validation scripts
+6. **Consider portability** - Code should work on macOS, Linux, and Windows
+7. **Respect licenses** - Maintain proper license headers
+8. **Document thoroughly** - Complex changes need explanation
+
+---
+
+**Remember:** Helium is built on ungoogled-chromium, which is built on Chromium. Respect the foundation while building the future. Privacy, transparency, and user control are core values.
